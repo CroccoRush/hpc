@@ -1,0 +1,19 @@
+Matrix Size,Threads Count,Calculation Type,Average Result,Variance
+1024,1,simple,28.1383,0.0
+1024,2,simple,14.9338,0.0
+1024,3,simple,9.88235,0.0
+1024,4,simple,7.45143,0.0
+1024,5,simple,6.06898,0.0
+1024,6,simple,5.11355,0.0
+1024,7,simple,6.5907,0.0
+1024,8,simple,6.18397,0.0
+1024,9,simple,5.67097,0.0
+1024,10,simple,5.66786,0.0
+1024,11,simple,5.52917,0.0
+1024,12,simple,5.2997,0.0
+1024,13,simple,5.49515,0.0
+1024,14,simple,5.5157,0.0
+1024,15,simple,5.58312,0.0
+1024,16,simple,5.4222,0.0
+1024,17,simple,5.69325,0.0
+1024,18,simple,5.4174,0.0

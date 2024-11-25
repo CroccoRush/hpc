@@ -1,0 +1,10 @@
+# Environments
+**/.venv
+**/venv
+
+cmake-build-debug
+imgs
+
+**/.idea/
+**/__pycache__
+**/__*
