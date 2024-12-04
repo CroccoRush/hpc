@@ -16,8 +16,8 @@ HUGE_START = DEFAULT_STOP + HUGE_STEP
 HUGE_STOP = 4096
 CPU_COUNT = 6
 THREADS_START = 1
-THREADS_STOP = 25
-RUNS_COUNT = 5  # Количество запусков для усреднения
+THREADS_STOP = 18
+RUNS_COUNT = 3  # The number of runs for averaging
 
 matrix_sizes = list(range(DEFAULT_START, DEFAULT_STOP + 1, DEFAULT_STEP))
 if WITH_HUGE:
@@ -32,7 +32,7 @@ for calculation_type in calculation_types:
     for matrix_size in matrix_sizes:
         for threads_count in threads_counts:
             print(f"ms: {matrix_size}, tc: {threads_count}, ct: {calculation_type}")
-            # Формируем команду для запуска вычислений
+            # Forming a command to start calculations
             command = [
                 "./hpc_task1",
                 str(matrix_size),
@@ -41,7 +41,7 @@ for calculation_type in calculation_types:
                 str(print_mode).lower(),
             ]
 
-            # Проводим вычисления
+            # Calculations
             run_results = []
             for _ in range(RUNS_COUNT):
                 result = subprocess.run(command, capture_output=True, text=True)
@@ -49,10 +49,9 @@ for calculation_type in calculation_types:
                     result_value = float(result.stdout.strip())
                     run_results.append(result_value)
                 except ValueError:
-                    # Если результат не является числом, игнорируем его
                     pass
 
-            # Вычисляем среднее значение и дисперсию
+            # Calculate the average value and variance
             if run_results:
                 avg_result = sum(run_results) / len(run_results)
                 variance = np.var(run_results)
@@ -60,7 +59,7 @@ for calculation_type in calculation_types:
                 avg_result = None
                 variance = None
 
-            # Сохраняем результат
+            # Saving the results
             key = (matrix_size, threads_count, calculation_type)
             results[key] = (avg_result, variance)
             print(
@@ -68,11 +67,11 @@ for calculation_type in calculation_types:
                 f"avg_result: {avg_result}, variance: {variance}"
             )
 
-# Создаем папку для сохранения изображений
+# Creating a folder to save images
 if not os.path.exists("./imgs"):
     os.makedirs("./imgs")
 
-# Построение и сохранение графиков
+# Plotting and saving graphs
 fig, axs = plt.subplots(
     2,
     len(calculation_types),
@@ -108,7 +107,7 @@ for i, calculation_type in enumerate(calculation_types):
             if avg_result is not None:
                 x_line.append(threads_count)
                 z_line.append(avg_result)
-                # Вычисляем ускорение относительно результата с threads_count=1
+                # Calculating the speedup relative to the result with threads_count=1
                 key_single_thread = (matrix_size, THREADS_START, calculation_type)
                 avg_result_single_thread, _ = results.get(
                     key_single_thread, (None, None)
@@ -119,23 +118,23 @@ for i, calculation_type in enumerate(calculation_types):
         z.append(z_line)
         speedup.append(speedup_line)
 
-    # Построение графика среднего результата
+    # Plotting the average result
     for x_line, z_line, matrix_size in zip(x, z, matrix_sizes):
         ax1.plot(x_line, z_line, label=f"Matrix Size: {matrix_size}")
 
-    # Добавляем вертикальные линии на график среднего результата
+    # Adding vertical lines to the graph of the average result
     for x_val in range(CPU_COUNT, THREADS_STOP + 1, CPU_COUNT):
         ax1.axvline(x=x_val, color="red", linestyle="--", linewidth=1)
 
-    # Построение графика ускорения
+    # Plotting the speedup graph
     for x_line, speedup_line, matrix_size in zip(x, speedup, matrix_sizes):
         ax2.plot(x_line, speedup_line, label=f"Matrix Size: {matrix_size}")
 
-    # Добавляем вертикальные линии на график ускорения
+    # Adding vertical lines to the speedup graph
     for x_val in range(CPU_COUNT, THREADS_STOP + 1, CPU_COUNT):
         ax2.axvline(x=x_val, color="red", linestyle="--", linewidth=1)
 
-    # Добавляем линию y = x на график ускорения
+    # Adding the y = x line to the speedup graph
     ax2.plot(
         [1, CPU_COUNT * 2],
         [1, CPU_COUNT * 2],
@@ -148,14 +147,14 @@ for i, calculation_type in enumerate(calculation_types):
     ax1.legend()
     ax2.legend()
 
-    # Сохранение графиков в файл
+    # Saving graphs to a file
     filename = f"./imgs/calculation_type_{calculation_type}.png"
     plt.savefig(filename)
     print(f"Saved plot to {filename}")
 
 plt.close(fig)
 
-# Сохранение результатов в CSV-файл
+# Saving the results to a CSV file
 csv_filename = f"./results/data-{datetime.now().timestamp()}.csv"
 with open(csv_filename, mode="w", newline="") as csv_file:
     writer = csv.writer(csv_file)
